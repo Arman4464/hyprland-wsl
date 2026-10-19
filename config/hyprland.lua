@@ -15,7 +15,7 @@ hl.monitor({
 ---------------------
 ---- MY PROGRAMS ----
 ---------------------
-local terminal = "kitty"
+local terminal = "foot"
 local menu = "rofi -show drun"
 
 -------------------
@@ -69,6 +69,10 @@ hl.config({
 ---- KEYBINDS ----
 ------------------
 -- Applications
+hl.bind("SUPER + RETURN", function()
+    hl.exec_cmd(terminal)
+end)
+
 hl.bind("SUPER + Q", function()
     hl.exec_cmd(terminal)
 end)
@@ -77,32 +81,33 @@ hl.bind("SUPER + SPACE", function()
     hl.exec_cmd(menu)
 end)
 
-hl.bind("SUPER + C", function()
-    hl.dispatch("killactive")
+-- Screenshot (matches Windows Win+Shift+S workflow: selects area and copies to clipboard)
+hl.bind("SUPER + SHIFT + S", function()
+    hl.exec_cmd("bash -c 'grim -g \"$(slurp)\" - | wl-copy'")
 end)
 
--- Exit Hyprland session
-hl.bind("SUPER + M", function()
-    hl.dispatch("exit")
-end)
+-- Window controls
+hl.bind("SUPER + C", hl.dsp.window.close())
+hl.bind("SUPER + V", hl.dsp.window.float())
 
-hl.bind("SUPER + V", function()
-    hl.dispatch("togglefloating")
-end)
+-- Exit Hyprland session (clean compositor shutdown returning to terminal)
+hl.bind("SUPER + M", hl.dsp.exit())
+hl.bind("SUPER + SHIFT + E", hl.dsp.exit())
+hl.bind("SUPER + Escape", hl.dsp.exit())
 
 -- Focus Movement
-hl.bind("SUPER + left", function() hl.dispatch("movefocus", "l") end)
-hl.bind("SUPER + right", function() hl.dispatch("movefocus", "r") end)
-hl.bind("SUPER + up", function() hl.dispatch("movefocus", "u") end)
-hl.bind("SUPER + down", function() hl.dispatch("movefocus", "d") end)
-hl.bind("SUPER + h", function() hl.dispatch("movefocus", "l") end)
-hl.bind("SUPER + l", function() hl.dispatch("movefocus", "r") end)
-hl.bind("SUPER + k", function() hl.dispatch("movefocus", "u") end)
-hl.bind("SUPER + j", function() hl.dispatch("movefocus", "d") end)
+hl.bind("SUPER + left", hl.dsp.focus({ direction = "left" }))
+hl.bind("SUPER + right", hl.dsp.focus({ direction = "right" }))
+hl.bind("SUPER + up", hl.dsp.focus({ direction = "up" }))
+hl.bind("SUPER + down", hl.dsp.focus({ direction = "down" }))
+hl.bind("SUPER + h", hl.dsp.focus({ direction = "left" }))
+hl.bind("SUPER + l", hl.dsp.focus({ direction = "right" }))
+hl.bind("SUPER + k", hl.dsp.focus({ direction = "up" }))
+hl.bind("SUPER + j", hl.dsp.focus({ direction = "down" }))
 
 -- Workspaces 1-5
 for i = 1, 5 do
     local ws = tostring(i)
-    hl.bind("SUPER + " .. ws, function() hl.dispatch("workspace", ws) end)
-    hl.bind("SUPER + SHIFT + " .. ws, function() hl.dispatch("movetoworkspace", ws) end)
+    hl.bind("SUPER + " .. ws, hl.dsp.focus({ workspace = ws }))
+    hl.bind("SUPER + SHIFT + " .. ws, hl.dsp.window.move({ workspace = ws }))
 end
