@@ -68,9 +68,9 @@ hl.config({
         enabled = false, -- Disabled for zero frame drops on Kepler FL 11_0
     },
     misc = {
-        disable_hyprland_logo = true,    -- Stops Hyprland from scaling high-res wallpaper into GT 710 VRAM
+        disable_hyprland_logo = false,   -- Enabled: wallpapers pre-scaled to 1366x768 (zero runtime scaling lag)
         disable_splash_rendering = true, -- Stops splash text allocation
-        force_default_wallpaper = 0,
+        force_default_wallpaper = 2,     -- 0: classic anime, 1: dark minimal, 2: anime aesthetic, -1: random
         background_color = "0x11111b",
     },
     input = {

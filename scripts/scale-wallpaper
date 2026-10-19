@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+# ==============================================================================
+# scale-wallpaper - Optimize wallpapers for NVIDIA GT 710 (1366x768)
+# ==============================================================================
+set -euo pipefail
+
+TARGET_W="${2:-1366}"
+TARGET_H="${3:-768}"
+
+if [ "$#" -lt 1 ] || [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    echo "Usage: scale-wallpaper <image-file> [width] [height]"
+    echo "Example: scale-wallpaper ~/Downloads/cool_wall.jpg"
+    echo "Default resolution: 1366x768 (Lanczos center-fill crop & scale)"
+    exit 1
+fi
+
+INPUT="$1"
+if [ ! -f "$INPUT" ]; then
+    echo "Error: file '$INPUT' not found." >&2
+    exit 1
+fi
+
+BASENAME=$(basename "$INPUT")
+NAME="${BASENAME%.*}"
+DEST_DIR="$HOME/Pictures/Wallpapers"
+mkdir -p "$DEST_DIR"
+OUTPUT="$DEST_DIR/${NAME}_${TARGET_W}x${TARGET_H}.png"
+
+echo "Scaling '$INPUT' -> '$OUTPUT' (${TARGET_W}x${TARGET_H} Lanczos)..."
+magick "$INPUT" -filter Lanczos -resize "${TARGET_W}x${TARGET_H}^" -gravity center -extent "${TARGET_W}x${TARGET_H}" -strip "$OUTPUT"
+
+echo "✓ Optimization complete!"
+echo "  File: $OUTPUT"
+echo "  Resolution: $(file "$OUTPUT" | grep -o '[0-9]* x [0-9]*')"
+echo "  Size: $(du -h "$OUTPUT" | cut -f1)"
