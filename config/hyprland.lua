@@ -42,15 +42,24 @@ hl.config({
         layout = "dwindle",
     },
     decoration = {
-        rounding = 6,
+        rounding = 4,
         active_opacity = 1.0,
-        inactive_opacity = 0.95,
+        inactive_opacity = 1.0,
         blur = {
             enabled = false, -- Disabled for peak 60 FPS on GT 710
         },
+        shadow = {
+            enabled = false, -- Disabled to prevent multi-pass GPU shadow blur
+        },
     },
     animations = {
-        enabled = false, -- Disabled for zero frame drops
+        enabled = false, -- Disabled for zero frame drops on Kepler FL 11_0
+    },
+    misc = {
+        disable_hyprland_logo = true,    -- Stops Hyprland from scaling massive 8K wallpaper on GT 710
+        disable_splash_rendering = true, -- Stops splash text allocation
+        force_default_wallpaper = 0,
+        background_color = "0x11111b",
     },
     input = {
         kb_layout = "us",
@@ -79,19 +88,12 @@ hl.bind("SUPER + SPACE", function()
     hl.exec_cmd(menu)
 end)
 
--- Screenshot (matches Windows Win+Shift+S workflow: selects area and copies to clipboard)
-hl.bind("SUPER + SHIFT + S", function()
-    hl.exec_cmd("bash -c 'grim -g \"$(slurp)\" - | wl-copy'")
-end)
-
 -- Window controls
 hl.bind("SUPER + C", hl.dsp.window.close())
 hl.bind("SUPER + V", hl.dsp.window.float())
 
--- Exit Hyprland session (clean compositor shutdown returning to terminal)
+-- Exit Hyprland session (original single keybinding)
 hl.bind("SUPER + M", hl.dsp.exit())
-hl.bind("SUPER + SHIFT + E", hl.dsp.exit())
-hl.bind("SUPER + Escape", hl.dsp.exit())
 
 -- Focus Movement
 hl.bind("SUPER + left", hl.dsp.focus({ direction = "left" }))

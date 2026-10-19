@@ -64,9 +64,9 @@ export XDG_SESSION_DESKTOP=Hyprland
 # 7. Start in user home directory so spawned apps start in ~
 cd "$HOME"
 
-# 8. Launch official Hyprland compositor
+# 8. Launch official Hyprland compositor with explicit path
 if command -v start-hyprland >/dev/null 2>&1; then
-    exec /usr/bin/start-hyprland
+    exec /usr/bin/start-hyprland --path /usr/bin/Hyprland "$@"
 else
-    exec /usr/bin/Hyprland
+    exec /usr/bin/Hyprland "$@"
 fi
