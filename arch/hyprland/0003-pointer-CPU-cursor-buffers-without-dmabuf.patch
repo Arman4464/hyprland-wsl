@@ -1,0 +1,61 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Shital Shah <2096835+sytelus@users.noreply.github.com>
+Date: Wed, 30 Sep 2026 21:53:57 -0700
+Subject: [PATCH 3/5] pointer: CPU cursor buffers without dmabuf
+
+When the preferred allocator hands out CPU (shm) buffers, the cursor buffer size comes from the
+buffer itself (there is no dmabuf to ask), and the CPU cursor path is used automatically, so
+hardware-cursor planes work on backends without DRM.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ src/pointer/PointerManager.cpp | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
+
+diff --git a/src/pointer/PointerManager.cpp b/src/pointer/PointerManager.cpp
+index e3e81af..fd78f58 100644
+--- a/src/pointer/PointerManager.cpp
++++ b/src/pointer/PointerManager.cpp
+@@ -442,7 +442,9 @@ SP<Aquamarine::IBuffer> CPointerManager::renderHWCursorBuffer(SP<CPointerManager
+ 
+     static auto PCPUBUFFER = CConfigValue<Config::INTEGER>("cursor:use_cpu_buffer");
+ 
+-    const bool  shouldUseCpuBuffer = *PCPUBUFFER == 1 || (*PCPUBUFFER != 0 && g_pHyprRenderer->isNvidia());
++    const auto  PREFERREDALLOC     = state->monitor->m_output->getBackend()->preferredAllocator();
++    const bool  cpuOnlyBackend     = PREFERREDALLOC && PREFERREDALLOC->type() == Aquamarine::AQ_ALLOCATOR_TYPE_SHM; // no GPU buffers to render into
++    const bool  shouldUseCpuBuffer = cpuOnlyBackend || *PCPUBUFFER == 1 || (*PCPUBUFFER != 0 && g_pHyprRenderer->isNvidia());
+ 
+     if (maxSize == Vector2D{}) {
+         Log::logger->log(Log::TRACE, "hardware cursor has zero max size {}, current {}", maxSize, m_currentCursorImage.size);
+@@ -454,8 +456,8 @@ SP<Aquamarine::IBuffer> CPointerManager::renderHWCursorBuffer(SP<CPointerManager
+             Log::logger->log(Log::TRACE, "hardware cursor too big! {} > {}", m_currentCursorImage.size, maxSize);
+             return nullptr;
+         }
+-    } else
+-        maxSize = cursorSize;
++    } else // any size: the size the cursor is drawn at on this monitor (the GPU path's xbox below)
++        maxSize = Vector2D{cursorSize / m_currentCursorImage.scale * state->monitor->m_scale}.round();
+ 
+     if (!state->monitor->m_cursorSwapchain || maxSize != state->monitor->m_cursorSwapchain->currentOptions().size ||
+         shouldUseCpuBuffer != (state->monitor->m_cursorSwapchain->getAllocator()->type() != Aquamarine::AQ_ALLOCATOR_TYPE_GBM)) {
+@@ -552,9 +554,10 @@ SP<Aquamarine::IBuffer> CPointerManager::renderHWCursorBuffer(SP<CPointerManager
+         // then, we just yeet it into the dumb buffer
+ 
+         const auto DMABUF      = buf->dmabuf();
++        const auto BUFSIZE     = DMABUF.success ? DMABUF.size : buf->size;
+         auto [data, fmt, size] = buf->beginDataPtr(0);
+ 
+-        auto CAIROSURFACE     = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, DMABUF.size.x, DMABUF.size.y);
++        auto CAIROSURFACE     = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, BUFSIZE.x, BUFSIZE.y);
+         auto CAIRODATASURFACE = cairo_image_surface_create_for_data(texData.data(), CAIRO_FORMAT_ARGB32, texture->m_size.x, texture->m_size.y, texture->m_size.x * 4);
+ 
+         auto CAIRO = cairo_create(CAIROSURFACE);
+@@ -574,7 +577,7 @@ SP<Aquamarine::IBuffer> CPointerManager::renderHWCursorBuffer(SP<CPointerManager
+         // we need to scale the cursor to the right size, because it might not be (esp with XCursor)
+         const auto SCALE = texture->m_size / (m_currentCursorImage.size / m_currentCursorImage.scale * state->monitor->m_scale);
+         const auto SX = SCALE.x, SY = SCALE.y;
+-        const auto BW = sc<double>(DMABUF.size.x), BH = sc<double>(DMABUF.size.y);
++        const auto BW = sc<double>(BUFSIZE.x), BH = sc<double>(BUFSIZE.y);
+ 
+         // Cairo pattern matrix maps destination coords to source coords (inverse of visual transform).
+         // x_src = xx * x_dst + xy * y_dst + x0

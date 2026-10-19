@@ -1,0 +1,10 @@
+# Build & temporary files
+*.bak
+*.tmp
+*.log
+*~
+
+# OS artifacts
+Thumbs.db
+Desktop.ini
+.DS_Store
