@@ -12,6 +12,14 @@ hl.monitor({
     scale = 1.0,
 })
 
+-- Wildcard fallback for any monitor output
+hl.monitor({
+    output = "",
+    mode = "1366x768@60",
+    position = "0x0",
+    scale = 1.0,
+})
+
 ---------------------
 ---- MY PROGRAMS ----
 ---------------------
@@ -40,23 +48,27 @@ hl.config({
         gaps_in = 4,
         gaps_out = 8,
         layout = "dwindle",
+        col = {
+            active_border = { colors = {"rgba(33ccffee)", "rgba(00ff99ee)"}, angle = 45 },
+            inactive_border = "rgba(595959aa)",
+        },
     },
     decoration = {
-        rounding = 4,
+        rounding = 6,
         active_opacity = 1.0,
-        inactive_opacity = 1.0,
+        inactive_opacity = 0.95,
         blur = {
             enabled = false, -- Disabled for peak 60 FPS on GT 710
         },
         shadow = {
-            enabled = false, -- Disabled to prevent multi-pass GPU shadow blur
+            enabled = false, -- Disabled to maximize GT 710 fillrate and eliminate shader passes
         },
     },
     animations = {
         enabled = false, -- Disabled for zero frame drops on Kepler FL 11_0
     },
     misc = {
-        disable_hyprland_logo = true,    -- Stops Hyprland from scaling massive 8K wallpaper on GT 710
+        disable_hyprland_logo = true,    -- Stops Hyprland from scaling high-res wallpaper into GT 710 VRAM
         disable_splash_rendering = true, -- Stops splash text allocation
         force_default_wallpaper = 0,
         background_color = "0x11111b",
@@ -75,24 +87,20 @@ hl.config({
 ------------------
 ---- KEYBINDS ----
 ------------------
--- Applications
-hl.bind("SUPER + RETURN", function()
-    hl.exec_cmd(terminal)
-end)
+-- Applications (direct C++ dispatchers for instant response)
+hl.bind("SUPER + RETURN", hl.dsp.exec_cmd(terminal))
+hl.bind("SUPER + Q", hl.dsp.exec_cmd(terminal))
+hl.bind("SUPER + SPACE", hl.dsp.exec_cmd(menu))
+hl.bind("SUPER + R", hl.dsp.exec_cmd(menu))
 
-hl.bind("SUPER + Q", function()
-    hl.exec_cmd(terminal)
-end)
-
-hl.bind("SUPER + SPACE", function()
-    hl.exec_cmd(menu)
-end)
+-- Screenshot (matches Windows Win+Shift+S workflow: selects area and copies to clipboard)
+hl.bind("SUPER + SHIFT + S", hl.dsp.exec_cmd("bash -c 'grim -g \"$(slurp)\" - | wl-copy'"))
 
 -- Window controls
 hl.bind("SUPER + C", hl.dsp.window.close())
-hl.bind("SUPER + V", hl.dsp.window.float())
+hl.bind("SUPER + V", hl.dsp.window.float({ action = "toggle" }))
 
--- Exit Hyprland session (original single keybinding)
+-- Exit Hyprland session (clean compositor shutdown returning to terminal)
 hl.bind("SUPER + M", hl.dsp.exit())
 
 -- Focus Movement
@@ -111,3 +119,7 @@ for i = 1, 5 do
     hl.bind("SUPER + " .. ws, hl.dsp.focus({ workspace = ws }))
     hl.bind("SUPER + SHIFT + " .. ws, hl.dsp.window.move({ workspace = ws }))
 end
+
+-- Mouse bindings (drag/resize floating windows)
+hl.bind("SUPER + mouse:272", hl.dsp.window.drag(), { mouse = true })
+hl.bind("SUPER + mouse:273", hl.dsp.window.resize(), { mouse = true })
