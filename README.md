@@ -130,12 +130,17 @@ Hyprland
 
 | Shortcut | Action |
 |---|---|
-| `SUPER + Q` | Launch **Kitty** terminal |
-| `SUPER + SPACE` | Launch **Rofi** application menu |
+| `SUPER + RETURN` / `SUPER + Q` | Launch **Foot** terminal |
+| `SUPER + SPACE` / `SUPER + R` | Launch **Rofi** application menu |
+| `SUPER + SHIFT + S` | Screenshot selection to clipboard (`grim` + `slurp` + `wl-copy`) |
 | `SUPER + C` | Close active window |
+| `SUPER + V` | Toggle window floating state |
+| `SUPER + Left Mouse Drag` | Move floating window |
+| `SUPER + Right Mouse Drag` | Resize floating window |
 | `SUPER + M` | **Exit Hyprland** and return cleanly to terminal |
 | `SUPER + [1-5]` | Switch to Workspace 1–5 |
 | `SUPER + SHIFT + [1-5]` | Move active window to Workspace 1–5 |
+| `SUPER + Arrow / HJKL` | Move focus left/right/up/down |
 
 ---
 

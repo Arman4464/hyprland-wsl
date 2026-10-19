@@ -94,7 +94,7 @@ hl.bind("SUPER + SPACE", hl.dsp.exec_cmd(menu))
 hl.bind("SUPER + R", hl.dsp.exec_cmd(menu))
 
 -- Screenshot (matches Windows Win+Shift+S workflow: selects area and copies to clipboard)
-hl.bind("SUPER + SHIFT + S", hl.dsp.exec_cmd("bash -c 'grim -g \"$(slurp)\" - | wl-copy'"))
+hl.bind("SUPER + SHIFT + S", hl.dsp.exec_cmd("bash -c 'geom=$(slurp) && [ -n \"$geom\" ] && grim -g \"$geom\" - | wl-copy -t image/png'"))
 
 -- Window controls
 hl.bind("SUPER + C", hl.dsp.window.close())
