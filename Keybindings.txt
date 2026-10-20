@@ -1,0 +1,70 @@
+================================================================================
+Hyprland WSL 2 & Rosewood Desktop Rice - Keybindings Cheat Sheet
+================================================================================
+Note: SUPER refers to the physical Windows Key (Win).
+
+1. SYSTEM & WINDOWS 11 BRIDGE
+--------------------------------------------------------------------------------
+Single SUPER (Tap)       Minimizes viewer and pops up Windows 11 Start Menu (open-start.exe)
+SUPER + M                Cleanly exit Hyprland compositor & session back to Windows
+Alt + Tab                Instantly releases capture, minimizes viewer, and switches to Windows apps
+Ctrl + Alt + End         Emergency Viewer Detach / Minimize
+
+2. APPLICATIONS
+--------------------------------------------------------------------------------
+SUPER + RETURN           Launch Foot Terminal (88% opacity, dual-kawase blur)
+SUPER + Q                Launch Foot Terminal (Alternative)
+SUPER + B                Launch Zen Browser (Native /usr/local/bin/zen)
+SUPER + E                Launch Neovim (Opens foot -e nvim)
+SUPER + P                Launch RMPC Music Player (Opens foot -e rmpc)
+SUPER + SPACE            Launch Rofi Application Drawer (Dynamic Material You theme)
+
+3. ROSEWOOD DESKTOP SHELL (QUICKSHELL)
+--------------------------------------------------------------------------------
+SUPER + R                Rosewood Pill Launcher (2-column app drawer with search, =math, :bash)
+SUPER + W                Wallpaper Picker (Visual grid of all 19 wallpapers, applies + recolors)
+SUPER + Shift + P        Power Menu (Floating Power - Reboot - Suspend - Lock pill)
+SUPER + Shift + L        Lock Screen (Freezes Linux display, applies blurred wallpaper & PAM auth - Linux only!)
+Hover on Pill            Hover Dashboard (Instant 200ms expansion into Clock, Media, Storage/RAM, Toggles)
+
+4. WINDOW MANAGEMENT & TILING
+--------------------------------------------------------------------------------
+SUPER + C                Close active window
+SUPER + V                Toggle Floating mode for active window
+SUPER + Left / Right     Move focus in direction (Arrow keys)
+SUPER + Up / Down        Move focus in direction (Arrow keys)
+SUPER + H / L / K / J    Move focus in direction (Vim keys)
+SUPER + Left Click Drag  Move / reposition window
+SUPER + Right Click Drag Resize window
+
+5. WORKSPACES (1-5)
+--------------------------------------------------------------------------------
+SUPER + 1 ... 5          Switch to Workspace 1, 2, 3, 4, or 5 (smooth slide)
+SUPER + Shift + 1 ... 5  Move active window to Workspace 1-5
+
+6. SCREENSHOTS
+--------------------------------------------------------------------------------
+SUPER + Shift + S        Select screen area (slurp), capture with grim, save timestamped PNG
+                         to ~/Pictures/Screenshots/, and copy image to clipboard
+
+7. IN-COMPONENT NAVIGATION KEYS
+--------------------------------------------------------------------------------
+In Rosewood App Launcher (SUPER + R):
+  /                      Focus search input
+  =12*4                  Instant calculator mode
+  :htop                  Direct bash execution mode
+  Up/Down/Left/Right     Navigate application grid (or h/j/k/l)
+  Enter                  Launch selected application
+  Esc                    Clear search / collapse back to clock pill
+
+In Rosewood Wallpaper Picker (SUPER + W):
+  /                      Search wallpapers
+  Arrow Keys or h/j/k/l  Move through wallpaper thumbnails
+  Enter                  Apply wallpaper live via awww and trigger Material You color retheme
+  Esc                    Close picker
+
+In Rosewood Power Menu (SUPER + Shift + P):
+  Left / Right or h/l    Select Power, Reboot, Suspend, or Lock
+  Enter or Space         Execute action
+  Esc                    Cancel
+================================================================================

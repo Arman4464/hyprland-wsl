@@ -1,6 +1,6 @@
 -- ~/.config/hypr/hyprland.lua
 -- Official Hyprland Lua Configuration
--- Tuned for 1366x768 @ 60Hz and NVIDIA GeForce GT 710 Direct3D 12 acceleration
+-- Tuned for Rosewood Desktop Shell, 1366x768 @ 60Hz and NVIDIA GeForce GT 710 D3D12
 
 ------------------
 ---- MONITORS ----
@@ -12,7 +12,6 @@ hl.monitor({
     scale = 1.0,
 })
 
--- Wildcard fallback for any monitor output
 hl.monitor({
     output = "",
     mode = "1366x768@60",
@@ -31,6 +30,8 @@ local menu = "rofi -show drun"
 -------------------
 hl.on("hyprland.start", function()
     hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP")
+    hl.exec_cmd("bash -c 'awww-daemon & sleep 0.5 && /home/rango/.config/quickshell/scripts/daily_wallpaper.sh'")
+    hl.exec_cmd("qs -p /home/rango/.config/quickshell")
 end)
 
 -------------------------------
@@ -38,6 +39,11 @@ end)
 -------------------------------
 hl.env("XCURSOR_SIZE", "24")
 hl.env("HYPRCURSOR_SIZE", "24")
+hl.env("LIBGL_ALWAYS_SOFTWARE", "0")
+hl.env("GALLIUM_DRIVER", "d3d12")
+hl.env("MESA_LOADER_DRIVER_OVERRIDE", "d3d12")
+hl.env("MESA_D3D12_DEFAULT_ADAPTER_NAME", "NVIDIA")
+hl.env("WLR_RENDERER", "gles2")
 
 ---------------------------
 ---- GENERAL & OPTIONS ----
@@ -45,33 +51,41 @@ hl.env("HYPRCURSOR_SIZE", "24")
 hl.config({
     general = {
         border_size = 2,
-        gaps_in = 4,
-        gaps_out = 8,
+        gaps_in = 5,
+        gaps_out = 10,
         layout = "dwindle",
         col = {
-            active_border = { colors = {"rgba(33ccffee)", "rgba(00ff99ee)"}, angle = 45 },
-            inactive_border = "rgba(595959aa)",
+            active_border = { colors = {"rgba(D4B1ADee)", "rgba(654D4Aee)"}, angle = 45 },
+            inactive_border = "rgba(221F1Faa)",
         },
     },
     decoration = {
-        rounding = 6,
+        rounding = 8,
         active_opacity = 1.0,
-        inactive_opacity = 0.95,
+        inactive_opacity = 0.90,
         blur = {
-            enabled = false, -- Disabled for peak 60 FPS on GT 710
+            enabled = true,
+            size = 3,
+            passes = 1,
+            vibrancy = 0.1696,
+            new_optimizations = true,
+            ignore_opacity = true,
         },
         shadow = {
-            enabled = false, -- Disabled to maximize GT 710 fillrate and eliminate shader passes
+            enabled = true,
+            range = 6,
+            render_power = 2,
+            color = "rgba(1a1a1a88)",
         },
     },
     animations = {
-        enabled = false, -- Disabled for zero frame drops on Kepler FL 11_0
+        enabled = true,
     },
     misc = {
-        disable_hyprland_logo = false,   -- Enabled: wallpapers pre-scaled to 1366x768 (zero runtime scaling lag)
-        disable_splash_rendering = true, -- Stops splash text allocation
-        force_default_wallpaper = 2,     -- 0: classic anime, 1: dark minimal, 2: anime aesthetic, -1: random
-        background_color = "0x11111b",
+        disable_hyprland_logo = true,
+        disable_splash_rendering = true,
+        force_default_wallpaper = 0,
+        background_color = "0x030000",
     },
     input = {
         kb_layout = "us",
@@ -84,27 +98,82 @@ hl.config({
     },
 })
 
+---------------------
+---- LAYER RULES ----
+---------------------
+-- Kepler GT 710 Optimization:
+-- Layer surfaces (Quickshell pill, notifications, desktop bar) have no_anim and blur disabled.
+-- This guarantees zero expensive makeSnapshotFB framebuffer snapshot overhead on GT 710 Kepler,
+-- ensuring locked 60 FPS while application windows (foot, rofi, zen) enjoy smooth dual-kawase blur.
+
+hl.layer_rule({
+    name = "quickshell-perf",
+    match = { namespace = "^quickshell.*" },
+    no_anim = true,
+    blur = false,
+    blur_popups = false,
+})
+
+hl.layer_rule({
+    name = "all-layers-perf",
+    match = { namespace = ".*" },
+    no_anim = true,
+    blur = false,
+    blur_popups = false,
+})
+
+--------------------
+---- ANIMATIONS ----
+--------------------
+hl.curve("easeOutQuint", { type = "bezier", points = { {0.23, 1}, {0.32, 1} } })
+hl.curve("easeInOutCubic", { type = "bezier", points = { {0.65, 0.05}, {0.36, 1} } })
+hl.curve("almostLinear", { type = "bezier", points = { {0.5, 0.5}, {0.75, 1.0} } })
+hl.curve("quick", { type = "bezier", points = { {0.15, 0}, {0.1, 1} } })
+
+hl.animation({ leaf = "global", enabled = true, speed = 5, bezier = "default" })
+hl.animation({ leaf = "windows", enabled = true, speed = 5, bezier = "easeOutQuint" })
+hl.animation({ leaf = "windowsIn", enabled = true, speed = 4.5, bezier = "easeOutQuint", style = "popin 87%" })
+hl.animation({ leaf = "windowsOut", enabled = true, speed = 3.5, bezier = "quick", style = "popin 87%" })
+hl.animation({ leaf = "fadeIn", enabled = true, speed = 3, bezier = "almostLinear" })
+hl.animation({ leaf = "fadeOut", enabled = true, speed = 2.5, bezier = "almostLinear" })
+hl.animation({ leaf = "layers", enabled = false })
+hl.animation({ leaf = "layersIn", enabled = false })
+hl.animation({ leaf = "layersOut", enabled = false })
+hl.animation({ leaf = "fadeLayersIn", enabled = false })
+hl.animation({ leaf = "fadeLayersOut", enabled = false })
+hl.animation({ leaf = "workspaces", enabled = true, speed = 4, bezier = "easeOutQuint", style = "slide" })
+
 ------------------
 ---- KEYBINDS ----
 ------------------
 -- Single SUPER tap brings up the Windows Start Menu
-hl.bind("SUPER + Super_L", hl.dsp.exec_cmd("/mnt/d/RangoWorkspace/bin/open-start.exe"), { release = true })
-hl.bind("SUPER + Super_R", hl.dsp.exec_cmd("/mnt/d/RangoWorkspace/bin/open-start.exe"), { release = true })
+hl.bind("SUPER + Super_L", hl.dsp.exec_cmd("/mnt/e/RangoWorkspace/bin/open-start.exe"), { release = true })
+hl.bind("SUPER + Super_R", hl.dsp.exec_cmd("/mnt/e/RangoWorkspace/bin/open-start.exe"), { release = true })
 
--- Applications (direct C++ dispatchers for instant response)
+-- Applications
 hl.bind("SUPER + RETURN", hl.dsp.exec_cmd(terminal))
 hl.bind("SUPER + Q", hl.dsp.exec_cmd(terminal))
 hl.bind("SUPER + SPACE", hl.dsp.exec_cmd(menu))
-hl.bind("SUPER + R", hl.dsp.exec_cmd(menu))
+hl.bind("SUPER + B", hl.dsp.exec_cmd("zen"))
+hl.bind("SUPER + E", hl.dsp.exec_cmd("foot -e nvim"))
+hl.bind("SUPER + P", hl.dsp.exec_cmd("foot -e rmpc"))
 
--- Screenshot (selects area, saves to ~/Pictures/Screenshots/ and copies to clipboard)
+-- Rosewood Quickshell Controls
+hl.bind("SUPER + R", hl.dsp.exec_cmd("qs ipc call pill setState appLauncher"))
+hl.bind("SUPER + W", hl.dsp.exec_cmd("qs ipc call pill setState wallpaper"))
+hl.bind("SUPER + SHIFT + P", hl.dsp.exec_cmd("qs ipc call pill setState powermenu"))
+
+-- Linux Lock Screen (SUPER + SHIFT + L ensures Windows never intercepts Win+L, locking Linux only!)
+hl.bind("SUPER + SHIFT + L", hl.dsp.exec_cmd("/home/rango/.config/quickshell/lockscreen/lock.sh"))
+
+-- Screenshot
 hl.bind("SUPER + SHIFT + S", hl.dsp.exec_cmd([[bash -c 'geom=$(slurp) && [ -n "$geom" ] && file="$HOME/Pictures/Screenshots/screenshot_$(date +%Y-%m-%d_%H-%M-%S).png" && grim -g "$geom" "$file" && wl-copy -t image/png < "$file"']]))
 
 -- Window controls
 hl.bind("SUPER + C", hl.dsp.window.close())
 hl.bind("SUPER + V", hl.dsp.window.float({ action = "toggle" }))
 
--- Exit Hyprland session (clean compositor shutdown returning to terminal)
+-- Exit Hyprland session
 hl.bind("SUPER + M", hl.dsp.exit())
 
 -- Focus Movement
@@ -124,6 +193,6 @@ for i = 1, 5 do
     hl.bind("SUPER + SHIFT + " .. ws, hl.dsp.window.move({ workspace = ws }))
 end
 
--- Mouse bindings (drag/resize floating windows)
+-- Mouse bindings
 hl.bind("SUPER + mouse:272", hl.dsp.window.drag(), { drag = true })
 hl.bind("SUPER + mouse:273", hl.dsp.window.resize(), { drag = true })

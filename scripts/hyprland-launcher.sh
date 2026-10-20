@@ -4,9 +4,19 @@
 # ==============================================================================
 set -euo pipefail
 
+# 0. Terminal line discipline: guarantee newline emits carriage return (CR+LF)
+stty onlcr 2>/dev/null || stty -F /dev/tty onlcr 2>/dev/null || true
+
+cleanup() {
+    stty sane 2>/dev/null || true
+    stty onlcr 2>/dev/null || stty -F /dev/tty onlcr 2>/dev/null || true
+}
+trap cleanup EXIT INT TERM HUP
+
 # 1. Forward flags directly to compiled Hyprland binary (required by hyprctl/tools)
 # Also guard against recursion if invoked from within an existing Hyprland session
 if [ -n "${WOMARCHY_TOKEN:-}" ] || [ -n "${HYPRLAND_BACKEND:-}" ] || [ "$#" -gt 0 ]; then
+    stty onlcr 2>/dev/null || stty -F /dev/tty onlcr 2>/dev/null || true
     exec /usr/bin/Hyprland "$@"
 fi
 
@@ -22,21 +32,19 @@ if ! mountpoint -q /mnt/wslgshm 2>/dev/null; then
     sudo -n /usr/bin/systemctl start mnt-wslgshm.mount 2>/dev/null || true
 fi
 
-# 4. Terminal restoration trap and line discipline
-cleanup() {
-    stty sane 2>/dev/null || true
-}
-trap cleanup EXIT INT TERM
-stty onlcr 2>/dev/null || true
-
-# 5. Launch viewer attached directly to interactive TTY
-VIEWER="/mnt/c/Users/rango/.local/bin/hyprland-viewer.exe"
+# 4. Locate Windows DirectX 11 companion viewer
+VIEWER="/mnt/e/RangoWorkspace/bin/hyprland-viewer.exe"
 if [ ! -f "$VIEWER" ]; then
-    VIEWER="/mnt/d/RangoWorkspace/bin/hyprland-viewer.exe"
+    VIEWER="/mnt/e/RangoWorkspace/hyprland-wsl/bin/hyprland-viewer.exe"
 fi
 if [ ! -f "$VIEWER" ]; then
-    VIEWER="/mnt/d/RangoWorkspace/hyprland-wsl/bin/hyprland-viewer.exe"
+    VIEWER="/mnt/c/Users/rango/.local/bin/hyprland-viewer.exe"
 fi
 
+# 5. Launch viewer with stream filter ensuring proper CR+LF terminal formatting
 cd /mnt/c
-"$VIEWER" --distro "${WSL_DISTRO_NAME:-Arch}" --user "$USER" --session /usr/local/bin/hyprland-session
+"$VIEWER" --distro "${WSL_DISTRO_NAME:-Arch}" --user "$USER" --session /usr/local/bin/hyprland-session 2>&1 | /usr/local/bin/wsl-crlf
+EXIT_CODE=${PIPESTATUS[0]:-0}
+
+cleanup
+exit $EXIT_CODE
