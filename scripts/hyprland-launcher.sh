@@ -4,8 +4,9 @@
 # ==============================================================================
 set -euo pipefail
 
-# 1. Forward flags directly to compiled Hyprland binary (required by start-hyprland/hyprctl)
-if [ "$#" -gt 0 ]; then
+# 1. Forward flags directly to compiled Hyprland binary (required by hyprctl/tools)
+# Also guard against recursion if invoked from within an existing Hyprland session
+if [ -n "${WOMARCHY_TOKEN:-}" ] || [ -n "${HYPRLAND_BACKEND:-}" ] || [ "$#" -gt 0 ]; then
     exec /usr/bin/Hyprland "$@"
 fi
 
@@ -18,18 +19,24 @@ fi
 
 # 3. Ensure WSLg zero-copy shared memory is mounted
 if ! mountpoint -q /mnt/wslgshm 2>/dev/null; then
-    sudo /usr/bin/systemctl start mnt-wslgshm.mount 2>/dev/null || true
+    sudo -n /usr/bin/systemctl start mnt-wslgshm.mount 2>/dev/null || true
 fi
 
 # 4. Terminal restoration trap and line discipline
-trap 'stty sane 2>/dev/null || true' EXIT
+cleanup() {
+    stty sane 2>/dev/null || true
+}
+trap cleanup EXIT INT TERM
 stty onlcr 2>/dev/null || true
 
-# 5. Launch viewer in foreground from C:\ without subshell
+# 5. Launch viewer in foreground and normalize newlines to prevent Windows terminal staircase
 VIEWER="/mnt/c/Users/rango/.local/bin/hyprland-viewer.exe"
+if [ ! -f "$VIEWER" ]; then
+    VIEWER="/mnt/d/RangoWorkspace/bin/hyprland-viewer.exe"
+fi
 if [ ! -f "$VIEWER" ]; then
     VIEWER="/mnt/d/RangoWorkspace/hyprland-wsl/bin/hyprland-viewer.exe"
 fi
 
 cd /mnt/c
-exec "$VIEWER" --distro "${WSL_DISTRO_NAME:-Arch}" --user "$USER" --session /usr/local/bin/hyprland-session
+"$VIEWER" --distro "${WSL_DISTRO_NAME:-Arch}" --user "$USER" --session /usr/local/bin/hyprland-session 2>&1 | sed -u 's/\r*$/\r/'

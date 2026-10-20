@@ -93,8 +93,8 @@ hl.bind("SUPER + Q", hl.dsp.exec_cmd(terminal))
 hl.bind("SUPER + SPACE", hl.dsp.exec_cmd(menu))
 hl.bind("SUPER + R", hl.dsp.exec_cmd(menu))
 
--- Screenshot (matches Windows Win+Shift+S workflow: selects area and copies to clipboard)
-hl.bind("SUPER + SHIFT + S", hl.dsp.exec_cmd("bash -c 'geom=$(slurp) && [ -n \"$geom\" ] && grim -g \"$geom\" - | wl-copy -t image/png'"))
+-- Screenshot (selects area, saves to ~/Pictures/Screenshots/ and copies to clipboard)
+hl.bind("SUPER + SHIFT + S", hl.dsp.exec_cmd([[bash -c 'geom=$(slurp) && [ -n "$geom" ] && file="$HOME/Pictures/Screenshots/screenshot_$(date +%Y-%m-%d_%H-%M-%S).png" && grim -g "$geom" "$file" && wl-copy -t image/png < "$file"']]))
 
 -- Window controls
 hl.bind("SUPER + C", hl.dsp.window.close())
