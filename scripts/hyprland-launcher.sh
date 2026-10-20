@@ -29,7 +29,7 @@ cleanup() {
 trap cleanup EXIT INT TERM
 stty onlcr 2>/dev/null || true
 
-# 5. Launch viewer in foreground and normalize newlines to prevent Windows terminal staircase
+# 5. Launch viewer attached directly to interactive TTY
 VIEWER="/mnt/c/Users/rango/.local/bin/hyprland-viewer.exe"
 if [ ! -f "$VIEWER" ]; then
     VIEWER="/mnt/d/RangoWorkspace/bin/hyprland-viewer.exe"
@@ -39,4 +39,4 @@ if [ ! -f "$VIEWER" ]; then
 fi
 
 cd /mnt/c
-"$VIEWER" --distro "${WSL_DISTRO_NAME:-Arch}" --user "$USER" --session /usr/local/bin/hyprland-session 2>&1 | sed -u 's/\r*$/\r/'
+"$VIEWER" --distro "${WSL_DISTRO_NAME:-Arch}" --user "$USER" --session /usr/local/bin/hyprland-session
