@@ -24,7 +24,7 @@ hl.monitor({
 ---- MY PROGRAMS ----
 ---------------------
 local terminal = "foot"
-local menu = "pkill -x rofi || rofi -show drun"
+local menu = "rofi -show drun"
 
 -------------------
 ---- AUTOSTART ----
@@ -87,9 +87,9 @@ hl.config({
 ------------------
 ---- KEYBINDS ----
 ------------------
--- Single SUPER tap toggles application menu (Start Menu behavior)
-hl.bind("SUPER + Super_L", hl.dsp.exec_cmd(menu), { release = true })
-hl.bind("SUPER + Super_R", hl.dsp.exec_cmd(menu), { release = true })
+-- Single SUPER tap brings up the Windows Start Menu
+hl.bind("SUPER + Super_L", hl.dsp.exec_cmd("/mnt/d/RangoWorkspace/bin/open-start.exe"), { release = true })
+hl.bind("SUPER + Super_R", hl.dsp.exec_cmd("/mnt/d/RangoWorkspace/bin/open-start.exe"), { release = true })
 
 -- Applications (direct C++ dispatchers for instant response)
 hl.bind("SUPER + RETURN", hl.dsp.exec_cmd(terminal))
