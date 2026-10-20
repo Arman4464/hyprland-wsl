@@ -24,7 +24,7 @@ hl.monitor({
 ---- MY PROGRAMS ----
 ---------------------
 local terminal = "foot"
-local menu = "rofi -show drun"
+local menu = "pkill -x rofi || rofi -show drun"
 
 -------------------
 ---- AUTOSTART ----
@@ -87,6 +87,10 @@ hl.config({
 ------------------
 ---- KEYBINDS ----
 ------------------
+-- Single SUPER tap toggles application menu (Start Menu behavior)
+hl.bind("SUPER + Super_L", hl.dsp.exec_cmd(menu), { release = true })
+hl.bind("SUPER + Super_R", hl.dsp.exec_cmd(menu), { release = true })
+
 -- Applications (direct C++ dispatchers for instant response)
 hl.bind("SUPER + RETURN", hl.dsp.exec_cmd(terminal))
 hl.bind("SUPER + Q", hl.dsp.exec_cmd(terminal))
