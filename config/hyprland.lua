@@ -97,7 +97,7 @@ hl.config({
         sensitivity = 0,
     },
     debug = {
-        disable_logs = true,
+        disable_logs = false,
         enable_stdout_logs = false,
     },
 })
