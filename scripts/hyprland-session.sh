@@ -73,6 +73,11 @@ export XDG_SESSION_CLASS=user
 export XDG_CURRENT_DESKTOP=Hyprland
 export XDG_SESSION_DESKTOP=Hyprland
 
+# Force Qt 6 & Quickshell hardware acceleration on Wayland
+export QSG_RHI_BACKEND=opengl
+export QT_QPA_PLATFORM=wayland
+export QT_WAYLAND_DISABLE_WINDOWDECORATION=1
+
 # 7. Start in user home directory so spawned apps start in ~
 cd "$HOME"
 
