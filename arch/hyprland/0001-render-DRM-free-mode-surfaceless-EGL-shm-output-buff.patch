@@ -271,9 +271,17 @@ index 794d035..052fbc1 100644
 +        return;
 +    }
 +
-+    // every glReadPixels is a GPU sync point with a fixed cost; don't pay it per tiny rect
-+    if (region.getRects().size() > 4)
-+        region = CRegion{region.getExtents()};
++    // every glReadPixels is a GPU sync point with a fixed cost; don't pay it per tiny rect,
++    // but avoid blowing up small disjoint updates into an accidental 4.2MB full-screen readback on GT 710
++    const auto rectCount = region.getRects().size();
++    if (rectCount > 16) {
++        size_t totalArea = 0;
++        region.forEachRect([&](const auto& r) { totalArea += sc<size_t>(r.x2 - r.x1) * sc<size_t>(r.y2 - r.y1); });
++        const auto ext = region.getExtents();
++        size_t extArea = sc<size_t>(ext.w) * sc<size_t>(ext.h);
++        if (extArea <= totalArea * 2 || rectCount > 32)
++            region = CRegion{ext};
++    }
 +
 +    // same format selection as CGLFramebuffer::readPixels
 +    static auto stripSwizzleAlpha = [](std::array<GLint, 4> arr) {
