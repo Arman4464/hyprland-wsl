@@ -10,9 +10,9 @@ Use this reference to re-enable features once Hyprland is fully running.
 
 | Feature / Component | Prior / Normal State | Optimized / Disabled State | Reason for Change | File & Setting Location |
 |---|---|---|---|---|
-| **Blur** | Enabled (`true`) | Disabled (`false`) | Blur shaders heavily saturate GT 710 memory bandwidth and fillrate, dropping FPS below 60. | `config/hyprland.lua`<br>`decoration.blur.enabled = false` |
-| **Drop Shadows** | Enabled (`true`) | Disabled (`false`) | Multi-pass shadow generation consumes significant fragment shader cycles. | `config/hyprland.lua`<br>`decoration.shadow.enabled = false` |
-| **Animations** | Enabled (`true`) | Disabled (`false`) | Interpolation calculations cause micro-stuttering and frame drops on Kepler FL 11_0. | `config/hyprland.lua`<br>`animations.enabled = false` |
+| **Blur** | Enabled (`true`) | Single-pass Kawase Blur (`passes = 1, size = 2, new_optimizations = true`) with Layer Rules | Blur on application windows (foot, rofi, zen) is fully active at 60 FPS. Layer surfaces (quickshell pill, bar) have blur bypassed via layer rules to prevent off-screen framebuffer snapshot stalls (`makeSnapshotFB`). | `config/hyprland.lua`<br>`decoration.blur` & `hl.layer_rule` |
+| **Drop Shadows** | Enabled (`true`) | Lightweight Soft Shadow (`range = 4, render_power = 1`) | Subtle dark ambient glow without heavy multi-pass blur iterations. | `config/hyprland.lua`<br>`decoration.shadow` |
+| **Animations** | Enabled (`true`) | Snappy Beziers (120–180ms: `fluent_decel`, `easeOutQuint`) | High-speed curves eliminate lingering interpolation overhead while keeping transitions instant and fluid. | `config/hyprland.lua`<br>`animations` |
 | **Splash Rendering** | Enabled (`false`) | Disabled (`true`) | Splash text forces extra surface allocations during startup. | `config/hyprland.lua`<br>`misc.disable_splash_rendering = true` |
 | **Dynamic Wallpaper Scaling** | Dynamic bicubic/bilinear scaling by compositor | Wallpapers pre-scaled to exactly 1366x768 | Bypasses `Renderer.cpp` dynamic GPU scaling pass on each display refresh/framebuffer init. | Script: `scripts/scale-wallpaper`<br>Target: `~/.config/hypr/` / wallpaper assets |
 | **Default Terminal** | `kitty` | `foot` | Kitty requires full OpenGL 3.3 Core Profile which is incompatible with Kepler FL 11_0 over Mesa d3d12 Gallium. `foot` uses pure Wayland SHM / pixman CPU rendering with zero OpenGL version requirements. | `config/hyprland.lua`<br>`local terminal = "foot"` |

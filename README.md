@@ -126,6 +126,53 @@ Hyprland
 
 ---
 
+## 🏎️ The "Invisible 5 FPS" Glitch on WSL 3.0.x & How to Fix It
+
+### The Mystery Symptom
+When running Hyprland, Quickshell, or GPU-accelerated Wayland apps on WSL 3.0.x (e.g. WSL 3.0.3.0 with Linux kernel 6.6+), you may notice that despite having a dedicated GPU, fast CPU, and zero-copy shared memory configured, the desktop unexpectedly chokes down to an unplayable **5 FPS**.
+Simple 1080p or 768p texture uploads (`glTexSubImage2D`), font glyph rasterization, and basic window redraws take upwards of **800 ms** per frame instead of the normal 1.6 ms.
+
+### The Root Cause: WSL Hypervisor Memory Regression
+In WSL 3.0.x, Microsoft introduced a severe hypervisor regression across `/dev/dxg` affecting Direct3D 12 write-combined upload heaps (`D3D12_HEAP_TYPE_UPLOAD`).
+- **Normal memory bandwidth:** 6–18 GB/s
+- **WSL 3.0.x write-combined bandwidth:** drops to roughly **9 MB/s** (~0.05% of normal speed)
+
+Because upstream Mesa's Direct3D 12 Gallium driver streams every texture upload, window surface update, and font glyph buffer through `D3D12_HEAP_TYPE_UPLOAD`, the CPU is forced to stall for hundreds of milliseconds on every minor draw call across the Hyper-V VM boundary.
+
+### The Fix: Patched Write-Back Mesa
+
+#### Step 1: Install the Patched Mesa Package
+The fix replaces `D3D12_HEAP_TYPE_UPLOAD` with write-back custom heaps (`D3D12_HEAP_TYPE_READBACK`), completely bypassing the hypervisor bug and restoring full 6–18 GB/s bandwidth:
+```bash
+cd /tmp
+curl -LO https://github.com/sytelus/womarchy/releases/download/packages/mesa-1.26.2.3-2.1-x86_64.pkg.tar.zst
+sudo pacman -U --noconfirm mesa-1.26.2.3-2.1-x86_64.pkg.tar.zst
+```
+
+#### Step 2: Install Compatible LLVM Runtime (`llvm22-libs`)
+Arch Linux rolling updates may have upgraded system LLVM to version 23. Because the patched Mesa package links against `libLLVM.so.22.1`, install Arch's official `llvm22-libs` package so Mesa's EGL driver (`libEGL_mesa.so.0`) loads cleanly:
+```bash
+sudo pacman -S --noconfirm llvm22-libs
+```
+
+#### Step 3: Prevent Upstream Overwrites in `pacman.conf`
+Lock the package in `/etc/pacman.conf` so regular system upgrades (`pacman -Syu`) do not replace the patched driver with unpatched upstream packages:
+```ini
+# In /etc/pacman.conf
+IgnorePkg = mesa aquamarine hyprland
+```
+
+#### Step 4: Grant Real-Time Process Scheduling
+Ensure Hyprland can acquire real-time priority (`SCHED_RR`) without permission errors:
+```bash
+sudo setcap cap_sys_nice+ep /usr/bin/Hyprland
+```
+
+#### Step 5: Prevent Premature Full-Screen Damage Collapsing
+In `GLRenderbuffer.cpp`, ensure small UI updates (such as a blinking terminal cursor or digital clock tick) only upload their dirty rectangles rather than collapsing into a full-screen (4.2 MB) readback across the bus. This is already included in this repository's patch set.
+
+---
+
 ## ⌨️ Default Keybindings
 
 | Shortcut | Action |
