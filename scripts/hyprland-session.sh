@@ -63,6 +63,8 @@ sudo -n /usr/bin/chmod 1777 /tmp/.X11-unix 2>/dev/null || true
 export WOMARCHY_ORPHAN_TIMEOUT=0
 
 # Direct3D 12 Gallium driver acceleration via /dev/dxg (Kepler FL 11_0)
+export LIBGL_DRI2_DISABLE=1
+export MESA_LOG_LEVEL=error
 export LIBGL_ALWAYS_SOFTWARE=0
 export GALLIUM_DRIVER=d3d12
 export MESA_LOADER_DRIVER_OVERRIDE=d3d12

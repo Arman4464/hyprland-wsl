@@ -40,6 +40,8 @@ end)
 hl.env("XCURSOR_SIZE", "24")
 hl.env("HYPRCURSOR_SIZE", "24")
 hl.env("LIBGL_ALWAYS_SOFTWARE", "0")
+hl.env("LIBGL_DRI2_DISABLE", "1")
+hl.env("MESA_LOG_LEVEL", "error")
 hl.env("GALLIUM_DRIVER", "d3d12")
 hl.env("MESA_LOADER_DRIVER_OVERRIDE", "d3d12")
 hl.env("MESA_D3D12_DEFAULT_ADAPTER_NAME", "NVIDIA")
@@ -52,6 +54,11 @@ hl.env("QT_WAYLAND_DISABLE_WINDOWDECORATION", "1")
 ---- GENERAL & OPTIONS ----
 ---------------------------
 hl.config({
+    render = {
+        cm_enabled = false,
+        new_render_scheduling = true,
+        direct_scanout = 0,
+    },
     general = {
         border_size = 2,
         gaps_in = 5,
