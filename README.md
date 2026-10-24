@@ -1,6 +1,16 @@
-# Hyprland-WSL 🚀
+# Hyprland-WSL 🚀 (Branch: `My-Hyprland`)
 
-> **Pure upstream Hyprland compositor running natively in Arch Linux on WSL 2 with hardware GPU acceleration (DirectX 11 / Direct3D 12) and zero-copy 60 FPS presentation.**
+> **The definitive Arch Linux + WSL 2 Hyprland workstation setup. Includes the complete Rosewood Desktop Shell (Quickshell), dynamic Material You theme engine, daily wallpaper rotation with 19 curated wallpapers, custom WSL 2 tuning, and zero-copy 60 FPS presentation.**
+
+---
+
+## 🎨 What's in this Branch (`My-Hyprland`)
+
+- **🌹 Rosewood Desktop Shell (`dotfiles/quickshell`):** Modern desktop pill launcher, interactive hover dashboard (CPU, RAM, Free Storage on root & Windows mounts, Media, Power controls), visual wallpaper picker, and lock screen with PAM authentication.
+- **🎨 Dynamic Material You Theming (`extract_colors.py`):** Whenever a wallpaper changes, Python extracts dominant colors and generates a full Material You palette across Quickshell, Rofi (`colors.rasi`), and Foot terminal (`foot.ini`).
+- **🌄 19 Curated Wallpapers (`wallpapers/`):** Pre-scaled and optimized 1366x768 wallpapers rotated automatically daily via systemd user timer (`daily-wallpaper.timer`).
+- **⚡ Snappy Animations & Dual-Kawase Blur (`dotfiles/hypr/hyprland.lua`):** 120–180ms bezier curves for immediate response; layer rules bypass snapshot stalls to lock in 60 FPS on Kepler GT 710.
+- **⚙️ Complete WSL 2 & Host Configurations (`wsl/`):** Includes `/etc/wsl.conf` with directory caching flags, `C:\Users\rango\.wslconfig`, real-time PAM limits, and Linux-PAM service descriptors (`quickshell.pam`, `hyprlock.pam`).
 
 ---
 

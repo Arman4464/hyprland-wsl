@@ -1,0 +1,7 @@
+[wsl2]
+memory=6GB
+processors=6
+swap=2GB
+localhostForwarding=true
+# Preserved for Hyprland: WSLg virtio-fs DAX device (/mnt/wslg) is required by /mnt/wslgshm for zero-copy 60 FPS frame sharing with hyprland-viewer.exe
+guiApplications=true

@@ -1,0 +1,10 @@
+[Unit]
+Description=Daily Wallpaper Rotation Timer
+PartOf=graphical-session.target
+
+[Timer]
+OnCalendar=*-*-* 00:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

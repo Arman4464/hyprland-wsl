@@ -1,0 +1,7 @@
+[Unit]
+Description=Daily Wallpaper Rotation and Material You Retheming
+PartOf=graphical-session.target
+
+[Service]
+Type=oneshot
+ExecStart=/home/rango/.config/quickshell/scripts/daily_wallpaper.sh

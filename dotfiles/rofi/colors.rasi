@@ -1,0 +1,11 @@
+* {
+    bg: #0a0b0f;
+    fg: #e3e4e8;
+    accent: #8595ff;
+    selected: #282b3e;
+    border-col: #8595ff;
+    surface: #14161f;
+    surface-variant: #282b3e;
+    background-color: @bg;
+    text-color: @fg;
+}
